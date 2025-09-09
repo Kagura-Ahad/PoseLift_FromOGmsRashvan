@@ -19,9 +19,17 @@ import pandas as pd
 import subprocess
 import sys
 
+# Set device
+if torch.cuda.is_available():
+    device = torch.device("cuda:0")
+    torch.cuda.set_device(device)
+else:
+    device = torch.device("cpu")
+
 def main():
     parser = init_parser()
     args = parser.parse_args()
+    args.device = device
 
     if args.seed == 999:  # Record and init seed
         args.seed = torch.initial_seed()
@@ -42,7 +50,7 @@ def main():
     model_args = init_model_params(args, dataset)
     model = STG_NF(**model_args)
     num_of_params = calc_num_of_params(model)
-    trainer = Trainer(args, model, loader['train'], loader['test'], 
+    trainer = Trainer(args, model, loader['train'], loader['test'],
                       optimizer_f=init_optimizer(args.model_optimizer, lr=args.model_lr),
                       scheduler_f=init_scheduler(args.model_sched, lr=args.model_lr, epochs=args.epochs))
     if pretrained:
@@ -55,19 +63,19 @@ def main():
     #Testing and scoring:
     normality_scores = trainer.test()
 
-   
+
     auc_roc, scores_np, auc_pr, eer, eer_threshold = score_dataset(normality_scores, dataset["test"].metadata, args=args)
- 
+
 
     # Logging and recording results
     print("\n-------------------------------------------------------")
- 
+
     print('auc(roc): {}'.format(auc_roc))
     print('auc(pr): {}'.format(auc_pr))
     print('eer: {}'.format(eer))
     print('eer threshold: {}'.format(eer_threshold))
     print('Number of samples', scores_np.shape[0])
-   
+
 
 
 if __name__ == '__main__':

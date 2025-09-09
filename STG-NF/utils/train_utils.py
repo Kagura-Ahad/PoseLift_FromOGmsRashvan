@@ -25,7 +25,11 @@ def init_model_params(args, dataset):
 
 def dump_args(args, ckpt_dir):
     path = os.path.join(ckpt_dir, "args.json")
-    data = vars(args)
+    data = vars(args).copy()
+    # Convert non-serializable objects to string (e.g., torch.device)
+    for k, v in data.items():
+        if isinstance(v, torch.device):
+            data[k] = str(v)
     with open(path, 'w') as fp:
         json.dump(data, fp)
 

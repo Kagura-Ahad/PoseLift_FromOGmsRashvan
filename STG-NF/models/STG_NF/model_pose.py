@@ -76,9 +76,11 @@ class FlowStep(nn.Module):
             first=False,
             strategy='uniform',
             max_hops=8,
-            device='cuda:0'
+            device=None
     ):
         super().__init__()
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.device = device
         self.flow_coupling = flow_coupling
         if A is None:
@@ -215,9 +217,11 @@ class FlowNet(nn.Module):
             temporal_kernel_size=None,
             strategy='uniform',
             max_hops=8,
-            device='cuda:0',
+            device=None
     ):
         super().__init__()
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.device = device
         self.layers = nn.ModuleList()
         self.output_shapes = []
@@ -294,9 +298,11 @@ class STG_NF(nn.Module):
             temporal_kernel_size=None,
             strategy='uniform',
             max_hops=8,
-            device='cuda:0'
+            device=None
     ):
         super().__init__()
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.flow = FlowNet(
             pose_shape=pose_shape,
             hidden_channels=hidden_channels,
